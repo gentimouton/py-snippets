@@ -6,27 +6,27 @@ from threading import Thread
 # http://stackoverflow.com/questions/231767/the-python-yield-keyword-explained
 # http://docs.python.org/2/library/queue.html
 
-q = Queue()
+# using multiprocessing: see https://gist.github.com/brantfaircloth/1255715
+
+q = Queue(maxsize=10)
 
 # consumer thread pops items from the queue
 def consume():
     while True:
         item = q.get()
-        print 'pop %d' % ( item)
         q.task_done()
 
-t = Thread(target=consume)
-t.daemon = True
-t.start()
+num_consumers = 7
+for i in range(num_consumers):
+    t = Thread(target=consume)
+    t.daemon = True
+    t.start()
 
 # producer thread
-limit = 10
+limit = 10 ** 8
 for item in range(limit):
     q.put(item)
-    print '-- put %d' % (item)
-    
+
 q.join() # wait for the queue to be empty
 
 # for some reason, some line breaks are sometimes missing when printing
-
-
